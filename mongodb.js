@@ -46,29 +46,76 @@ MongoClient.connect(connectionURL, {useUnifiedTopology: true}, (error, client) =
     //     console.log(result.ops)
     // })
 
-    // ===================================================== Read data
-    db.collection('users').findOne({ _id: new ObjectID('60050f361993974efcdfc4af') }, (error, user) => {
-        if (error) {
-            return console.log('Unable to fetch the data')
-        }
+//     // ===================================================== Read data
+//     db.collection('users').findOne({ _id: new ObjectID('60050f361993974efcdfc4af') }, (error, user) => {
+//         if (error) {
+//             return console.log('Unable to fetch the data')
+//         }
         
-        console.log(user)
-    })
+//         console.log(user)
+//     })
 
-    db.collection('users').find({ name: 'Ali' }).toArray((error, users) => {
-        if (error) {
-            return console.log('Unable to fetch the data')
-        }
+//     db.collection('users').find({ name: 'Ali' }).toArray((error, users) => {
+//         if (error) {
+//             return console.log('Unable to fetch the data')
+//         }
         
-        console.log(users)
-    })
+//         console.log(users)
+//     })
 
-    db.collection('users').find({ name: 'Ali' }).count((error, count) => {
-        if (error) {
-            return console.log('Unable to fetch the data')
-        }
+//     db.collection('users').find({ name: 'Ali' }).count((error, count) => {
+//         if (error) {
+//             return console.log('Unable to fetch the data')
+//         }
         
-        console.log(count)
-    })
+//         console.log(count)
+//     })
 
+// //==================================================================== Update data
+
+//     db.collection('users').updateOne({
+//         _id: new ObjectID("60050f361993974efcdfc4af")
+//     }, {
+//         $set: {
+//             name: 'Ghazanfar'
+//         }
+//         }).then((result) => {
+//             console.log(result)
+//         }).catch((error) => {
+//             console.log(error)
+//         })
+
+//     db.collection('users').updateOne({
+//         _id: new ObjectID("60050f361993974efcdfc4af")
+//     }, {
+//         $inc: {
+//             age: 20
+//         }
+//     }).then((result) => {
+//         console.log(result)
+//     }).catch((error) => {
+//         console.log(error)
+//     })
+
+//     db.collection('users').updateMany({
+//         name: 'RezaAli'
+//     }, {
+//         $set: {
+//             name: 'RezaAliii'
+//         }
+//     }).then((result) => {
+//         console.log(result.modifiedCount)
+//     }).catch((error) => {
+//         console.log(error)
+//     })
+
+//==================================================================== Delete data
+
+    db.collection('users').deleteMany({
+        name:'reza'
+    }).then((result) => {
+        console.log(result.deletedCount)
+    }).catch((error) => {
+        console.log(error)
+    })
 })
