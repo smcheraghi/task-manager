@@ -1,14 +1,17 @@
 const express = require('express')
 const User = require('../models/user')
+const auth = require('../middleware/authentication')
 const router = new express.Router()
 
 // app.post('/users', (req, res) => {
 //     const user = new User(req.body).save().then((user) => res.status(201).send(user)).catch((e) => res.status(400).send(e.message))
 // })
 router.post('/users', async(req, res) => {
+    const user = new User(req.body)
     try {
-        const user = await new User(req.body).save()
-        res.status(201).send(user)
+        await user.save()
+        const token = await user.generateAuthToken()
+        res.status(201).send( {user, token} )
     } catch (e) {
         res.status(400).send(e.message)
     }
@@ -17,15 +20,27 @@ router.post('/users', async(req, res) => {
 // app.get('/users', (req, res) => {
 //     User.find({}).then((users) => res.send(users)).catch((e) => res.status(500).send())
 // })
-router.get('/users', async (req, res) => {
-    try{
-        const users = await User.find({})
-        res.send(users)
-    } catch (e) {
-        res.status(500).send()
-    }
+// router.get('/users', auth, async (req, res) => {
+//     try{
+//         const users = await User.find({})
+//         res.send(users)
+//     } catch (e) {
+//         res.status(500).send()
+//     }
+// })
+router.get('/users/me', auth, async (req, res) => {
+    res.send(req.user)
 })
 
+router.post('/users/login', async (req, res) => {
+    try {
+        const user = await User.findByCredentials(req.body.email, req.body.password)
+        const token = await user.generateAuthToken()
+        res.send({ user, token })
+    } catch (e) {
+        res.status(400).send()
+    }
+})
 
 // app.get('/users/:id', (req, res) => {
 //     const _id = req.params.id
@@ -59,7 +74,11 @@ router.patch('/users/:id', async (req, res) => {
     }
 
     try {
-        const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true})
+        // const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true})
+        const user = await User.findById(req.params.id)
+        updates.forEach((update) => user[update] = req.body[update])
+        await user.save()
+         
         if (!user){
             return res.status(404).send() 
         }
