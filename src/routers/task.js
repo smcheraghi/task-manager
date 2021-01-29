@@ -8,9 +8,38 @@ const router = new express.Router()
 // })
 router.get('/tasks', auth, async (req, res) => {
     try {
+        const match = {}
+        const sort = {}
+
+
+        if (req.query.completed) {
+            match.completed = req.query.completed === 'true'
+        }
+
+        if (req.query.sortBy) {
+            const parts = req.query.sortBy.split(':')
+            sort[parts[0]] = parts[1] === 'desc' ? -1 : 1
+        }
+
         // const tasks = await Task.find({})
-        await req.user.populate('tasks').execPopulate()                 // const tasks = await Task.find({owner: req.user._id})
+        // await req.user.populate('tasks').execPopulate()                 // const tasks = await Task.find({owner: req.user._id})
         
+        await req.user.populate({
+            path: 'tasks', 
+            match,
+            options: {
+                limit: parseInt(req.query.limit),                            // Get /tasks?limit=10&skip=0      --> paginating --> page 120
+                skip: parseInt(req.query.skip),
+                sort
+                // sort: {
+                //     // createdAt: -1                                                 // Get /tasks?sortBy=createdAt:desc           desc -> -1        asce -> 1
+                //     completed: -1
+                // }
+            }
+            // match: {
+            //     completed: false,
+            // }
+        }).execPopulate()                     // Get /tasks?completed=true
         res.send(req.user.tasks)
     } catch (e) {
         res.status(500).send()
